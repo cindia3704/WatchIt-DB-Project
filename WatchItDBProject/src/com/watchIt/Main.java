@@ -1,11 +1,13 @@
 package com.watchIt;
 
 import com.watchIt.Entity.Content;
+import com.watchIt.Entity.Order;
 import com.watchIt.Entity.SearchHistory;
 import com.watchIt.Entity.Ticket;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
 import com.watchIt.dao.ContentDao;
+import com.watchIt.dao.OrderDao;
 import com.watchIt.dao.SearchHistoryDao;
 import com.watchIt.dao.TicketDao;
 import com.watchIt.dao.UserDao;
@@ -18,6 +20,7 @@ import com.watchIt.enums.UserStatus;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
@@ -60,6 +63,8 @@ public class Main {
         int countSearchHistory = 1;
         UserDao userDao = new UserDao();
         UserProfileDao userProfileDao = new UserProfileDao();
+        OrderDao orderDao = new OrderDao();
+
         for(int i =1;i<=5;i++){
             User user = new User();
             user.setId(i);
@@ -68,6 +73,8 @@ public class Main {
             user.setUsername(getRandomString(3,10));
             user.setUserStatus(getUserStatus(getRandomIndex(0,2)));
             userDao.insertUser(user);
+
+            orderDao.insertOrder(makeRandomOrder(i));
 
             int numOfProfiles = getRandomIndex(1,4);
             int numOfSearchHistory = getRandomIndex(0,30);
@@ -85,6 +92,15 @@ public class Main {
             count = count+numOfProfiles;
             countSearchHistory = countSearchHistory+numOfSearchHistory;
         }
+    }
+    private static Order makeRandomOrder(int userId){
+        Order order = new Order();
+        order.setId(userId);
+        Date orderDate  = getRandomDate();
+        order.setStartDate(orderDate);
+        order.setStartDate(getEndDateForSelectedDate(orderDate));
+        order.setUserId(userId);
+        return order;
     }
 
     private static void makeSearchHistory(int start,int count,int userId) throws SQLException{
@@ -177,6 +193,12 @@ public class Main {
 
         System.out.println(year + "-" + month + "-" + day);
         return Date.valueOf(LocalDate.of(year,month,day));
+    }
+
+    private static Date getEndDateForSelectedDate(Date start){
+        LocalDate datee = start.toLocalDate();
+        Month month  = datee.getMonth().plus(1);
+        return Date.valueOf(LocalDate.of(datee.getYear(),month,datee.getDayOfMonth()));
     }
 
     // get random userStatus
