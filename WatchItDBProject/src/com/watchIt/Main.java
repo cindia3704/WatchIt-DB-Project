@@ -15,8 +15,9 @@ import com.watchIt.enums.ContentType;
 import com.watchIt.enums.TicketType;
 import com.watchIt.enums.UserStatus;
 
+import java.sql.Date;
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
@@ -24,9 +25,9 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
-        createTickets();
+//        createTickets();
+//        makeRandomContents();
         createUsers();
-        makeRandomContents();
 
     }
 
@@ -57,8 +58,9 @@ public class Main {
     private static void createUsers() throws SQLException {
         int count = 1;
         int countSearchHistory = 1;
+        UserDao userDao = new UserDao();
+        UserProfileDao userProfileDao = new UserProfileDao();
         for(int i =1;i<=5;i++){
-            UserDao userDao = new UserDao();
             User user = new User();
             user.setId(i);
             user.setUserAge(getRandomIndex(10,60));
@@ -71,7 +73,6 @@ public class Main {
             int numOfSearchHistory = getRandomIndex(0,30);
             System.out.println("num profile: "+numOfProfiles);
             for(int j=count;j<numOfProfiles+count;j++){
-                UserProfileDao userProfileDao = new UserProfileDao();
                 UserProfile userProfile = new UserProfile();
                 userProfile.setUserId(i);
                 userProfile.setId(j);
@@ -87,20 +88,21 @@ public class Main {
     }
 
     private static void makeSearchHistory(int start,int count,int userId) throws SQLException{
+        SearchHistoryDao searchHistoryDao = new SearchHistoryDao();
         for(int i =start;i<start+count;i++){
-            SearchHistoryDao searchHistoryDao = new SearchHistoryDao();
             SearchHistory searchHistory = new SearchHistory();
 
             searchHistory.setId(i);
             searchHistory.setSearchKey(getRandomString(3,20));
-            searchHistory.setSearchedDate((java.sql.Date) getRandomDate());
+            searchHistory.setSearchedDate(getRandomDate());
             searchHistory.setUserProfileId(userId);
+            searchHistoryDao.insertSearchHistory(searchHistory);
         }
     }
 
     private static void makeRandomContents() throws SQLException {
+        ContentDao contentDao = new ContentDao();
         for(int i =1;i<=5;i++){
-            ContentDao contentDao = new ContentDao();
             Content content = new Content();
             content.setId(i);
             content.setContentType(getContentType(getRandomIndex(0,4)));
@@ -148,15 +150,33 @@ public class Main {
     private static Date getRandomDate(){
         GregorianCalendar gc = new GregorianCalendar();
 
-        int year = getRandomIndex(2019, 2020);
+        int year = getRandomIndex(2019, 2021);
 
-        gc.set(gc.YEAR, year);
+        int month = getRandomIndex(1,12);
+        int day=30;
+        switch (month){
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                day =31;
+                break;
+            case 2:
+                day = 28;
+                break;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                day = 30;
+                break;
+        }
 
-        int dayOfYear = getRandomIndex(1, gc.getActualMaximum(gc.DAY_OF_YEAR));
-
-        gc.set(gc.DAY_OF_YEAR, dayOfYear);
-
-        System.out.println(gc.get(gc.YEAR) + "-" + (gc.get(gc.MONTH) + 1) + "-" + gc.get(gc.DAY_OF_MONTH));
+        System.out.println(year + "-" + month + "-" + day);
+        return Date.valueOf(LocalDate.of(year,month,day));
     }
 
     // get random userStatus

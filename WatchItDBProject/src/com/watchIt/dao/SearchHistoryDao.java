@@ -33,7 +33,7 @@ public class SearchHistoryDao {
     }
 
     public void insertSearchHistory(SearchHistory searchHistory) throws SQLException {
-        String sqlStmt = "insert into ticket values(?,?,?,?);";
+        String sqlStmt = "insert into search_history values(?,?,?,?);";
         PreparedStatement pStmt = null;
         try{
             pStmt = conn.prepareStatement(sqlStmt);
