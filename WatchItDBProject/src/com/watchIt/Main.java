@@ -1,7 +1,9 @@
 package com.watchIt;
 
 import com.watchIt.Entity.User;
+import com.watchIt.Entity.UserProfile;
 import com.watchIt.dao.UserDao;
+import com.watchIt.dao.UserProfileDao;
 import com.watchIt.enums.UserStatus;
 
 import java.sql.SQLException;
@@ -17,7 +19,8 @@ public class Main {
 
     // create random users
     private static void createUsers() throws SQLException {
-        for(int i =1;i<=10;i++){
+        int count = 1;
+        for(int i =1;i<=5;i++){
             UserDao userDao = new UserDao();
             User user = new User();
             user.setId(i);
@@ -26,6 +29,19 @@ public class Main {
             user.setUsername(getRandomString());
             user.setUserStatus(getUserStatus(getRandomIndex(0,2)));
             userDao.insertUser(user);
+
+            int numOfProfiles = getRandomIndex(1,4);
+            System.out.println("num profile: "+numOfProfiles);
+            for(int j=count;j<numOfProfiles+count;j++){
+                UserProfileDao userProfileDao = new UserProfileDao();
+                UserProfile userProfile = new UserProfile();
+                userProfile.setUserId(i);
+                userProfile.setId(j);
+                userProfile.setNickname(getRandomString());
+                userProfileDao.insertUserProfile(userProfile);
+                System.out.println("DONE: "+i);
+            }
+            count = count+numOfProfiles;
         }
     }
 

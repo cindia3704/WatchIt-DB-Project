@@ -5,5 +5,33 @@ package com.watchIt.Entity;
 */
 
 public class UserProfile {
+    private int id;
+    private String nickname;
+    private int userId;
 
+    public UserProfile(){};
+
+    public int getId(){
+        return id;
+    }
+
+    public void setId(int id){
+        this.id = id;
+    }
+
+    public int getUserId(){
+        return userId;
+    }
+
+    public void setUserId(int id){
+        this.userId = id;
+    }
+
+    public String getNickname(){
+        return nickname;
+    }
+
+    public void setNickname(String nickname){
+        this.nickname=nickname;
+    }
 }
