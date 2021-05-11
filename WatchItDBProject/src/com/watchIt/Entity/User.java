@@ -1,5 +1,10 @@
-package com.watchIt;
+package com.watchIt.Entity;
 
+import com.watchIt.enums.UserStatus;
+/*
+ * @author : Jisoo Kim
+ * @date: 2021/05/12 4:49 오전
+*/
 public class User {
     private int id;
     private String username;

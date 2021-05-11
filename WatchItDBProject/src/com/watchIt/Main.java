@@ -1,5 +1,9 @@
 package com.watchIt;
 
+import com.watchIt.Entity.User;
+import com.watchIt.dao.UserDao;
+import com.watchIt.enums.UserStatus;
+
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -7,6 +11,12 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
+        createUsers();
+
+    }
+
+    // create random users
+    private static void createUsers() throws SQLException {
         for(int i =1;i<=10;i++){
             UserDao userDao = new UserDao();
             User user = new User();
@@ -19,7 +29,7 @@ public class Main {
         }
     }
 
-
+    // get random number
     private static int getRandomIndex(Integer minNum,Integer count){
         int min = minNum;
         int max = count;
@@ -28,6 +38,7 @@ public class Main {
         return random;
     }
 
+    // get random string made with alphabets  & length range from 3~10
     private static String getRandomString(){
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder();
@@ -41,6 +52,7 @@ public class Main {
         return sb.toString();
     }
 
+    // get random userStatus
     public static UserStatus getUserStatus(int index){
         if(index ==1) {
             return UserStatus.ACTIVE;
