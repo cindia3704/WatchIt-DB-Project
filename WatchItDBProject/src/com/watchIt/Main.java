@@ -1,9 +1,13 @@
 package com.watchIt;
 
+import com.watchIt.Entity.Content;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
+import com.watchIt.dao.ContentDao;
 import com.watchIt.dao.UserDao;
 import com.watchIt.dao.UserProfileDao;
+import com.watchIt.enums.ContentGenre;
+import com.watchIt.enums.ContentType;
 import com.watchIt.enums.UserStatus;
 
 import java.sql.SQLException;
@@ -13,7 +17,8 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
-        createUsers();
+//        createUsers();
+        makeRandomContents();
 
     }
 
@@ -25,8 +30,8 @@ public class Main {
             User user = new User();
             user.setId(i);
             user.setUserAge(getRandomIndex(10,60));
-            user.setPassword(getRandomString());
-            user.setUsername(getRandomString());
+            user.setPassword(getRandomString(3,10));
+            user.setUsername(getRandomString(3,10));
             user.setUserStatus(getUserStatus(getRandomIndex(0,2)));
             userDao.insertUser(user);
 
@@ -37,11 +42,29 @@ public class Main {
                 UserProfile userProfile = new UserProfile();
                 userProfile.setUserId(i);
                 userProfile.setId(j);
-                userProfile.setNickname(getRandomString());
+                userProfile.setNickname(getRandomString(3,10));
                 userProfileDao.insertUserProfile(userProfile);
                 System.out.println("DONE: "+i);
             }
             count = count+numOfProfiles;
+        }
+    }
+
+    private static void makeRandomContents() throws SQLException {
+        for(int i =1;i<=5;i++){
+            ContentDao contentDao = new ContentDao();
+            Content content = new Content();
+            content.setId(i);
+            content.setContentType(getContentType(getRandomIndex(0,4)));
+            content.setContentGenre(getContentGenre(getRandomIndex(0,12)));
+            content.setTitle(getRandomString(5,10));
+            content.setYear(getRandomIndex(1980,2022));
+            content.setDescription(getRandomString(30,300));
+            content.setPoster("https://watchIt.com/"+getRandomString(5,20)+".jpg");
+            content.setVideo("https://watchIt.com/"+getRandomString(5,20)+".mp4");
+            content.setTotalRateScore(getRandomDouble(0.0,5.0));
+            content.setAgeLimit(getRandomIndex(0,20));
+            contentDao.insertContent(content);
         }
     }
 
@@ -54,12 +77,18 @@ public class Main {
         return random;
     }
 
+    private static double getRandomDouble(double minNum, double maxNum){
+        Random r = new Random();
+        double randomValue = minNum + (maxNum - minNum) * r.nextDouble();
+        return randomValue;
+    }
+
     // get random string made with alphabets  & length range from 3~10
-    private static String getRandomString(){
+    private static String getRandomString(int minNum,int maxNum){
         String alphabet = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
-        int length = getRandomIndex(3,10);
+        int length = getRandomIndex(minNum,maxNum);
         for(int i =0;i<length;i++){
             int index = random.nextInt(alphabet.length());
             char randomChar = alphabet.charAt(index);
@@ -75,6 +104,57 @@ public class Main {
         }
         else{
             return UserStatus.INACTIVE;
+        }
+    }
+
+    public static ContentType getContentType(int index){
+        if(index ==1) {
+            return ContentType.DRAMA;
+        }
+        if(index ==2){
+            return ContentType.MOVIE;
+        }
+        if(index ==3){
+            return ContentType.ENTERTAINMENT;
+        }
+        else{
+            return ContentType.ORIGINAL;
+        }
+    }
+
+    public static ContentGenre getContentGenre(int index){
+        if(index ==1) {
+            return ContentGenre.DRAMA;
+        }
+        if(index ==2){
+            return ContentGenre.ACTION;
+        }
+        if(index ==3){
+            return ContentGenre.COMEDY;
+        }
+        if(index==5){
+            return ContentGenre.ADVENTURE;
+        }
+        if(index==6){
+            return ContentGenre.FANTASY;
+        }
+        if(index==7){
+            return ContentGenre.HORROR;
+        }
+        if(index==8){
+            return ContentGenre.MYSTERY;
+        }
+        if(index==9){
+            return ContentGenre.ROMANCE;
+        }
+        if(index==10){
+            return ContentGenre.ROMENTIC_COMEDY;
+        }
+        if(index==11){
+            return ContentGenre.SF;
+        }
+        else{
+            return ContentGenre.ETC;
         }
     }
 }
