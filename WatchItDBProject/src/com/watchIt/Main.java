@@ -1,13 +1,16 @@
 package com.watchIt;
 
 import com.watchIt.Entity.Content;
+import com.watchIt.Entity.Ticket;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
 import com.watchIt.dao.ContentDao;
+import com.watchIt.dao.TicketDao;
 import com.watchIt.dao.UserDao;
 import com.watchIt.dao.UserProfileDao;
 import com.watchIt.enums.ContentGenre;
 import com.watchIt.enums.ContentType;
+import com.watchIt.enums.TicketType;
 import com.watchIt.enums.UserStatus;
 
 import java.sql.SQLException;
@@ -17,9 +20,34 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
-//        createUsers();
-        makeRandomContents();
+//        createTickets();
 
+//        createUsers();
+//        makeRandomContents();
+
+    }
+
+    //create 3 tickets
+    private static void createTickets()throws SQLException{
+        TicketDao ticketDao = new TicketDao();
+
+        Ticket ticket1 = new Ticket();
+        ticket1.setId(1);
+        ticket1.setTicketType(TicketType.BASIC);
+        ticket1.setPrice(9500);
+        ticketDao.insertTicket(ticket1);
+
+        Ticket ticket2 = new Ticket();
+        ticket2.setId(2);
+        ticket2.setTicketType(TicketType.STANDARD);
+        ticket2.setPrice(15000);
+        ticketDao.insertTicket(ticket2);
+
+        Ticket ticket3 = new Ticket();
+        ticket3.setId(3);
+        ticket3.setTicketType(TicketType.PREMIUM);
+        ticket3.setPrice(20000);
+        ticketDao.insertTicket(ticket3);
     }
 
     // create random users
