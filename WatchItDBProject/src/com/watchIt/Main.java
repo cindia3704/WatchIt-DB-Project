@@ -1,10 +1,12 @@
 package com.watchIt;
 
 import com.watchIt.Entity.Content;
+import com.watchIt.Entity.SearchHistory;
 import com.watchIt.Entity.Ticket;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
 import com.watchIt.dao.ContentDao;
+import com.watchIt.dao.SearchHistoryDao;
 import com.watchIt.dao.TicketDao;
 import com.watchIt.dao.UserDao;
 import com.watchIt.dao.UserProfileDao;
@@ -14,16 +16,17 @@ import com.watchIt.enums.TicketType;
 import com.watchIt.enums.UserStatus;
 
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
-//        createTickets();
-
-//        createUsers();
-//        makeRandomContents();
+        createTickets();
+        createUsers();
+        makeRandomContents();
 
     }
 
@@ -53,6 +56,7 @@ public class Main {
     // create random users
     private static void createUsers() throws SQLException {
         int count = 1;
+        int countSearchHistory = 1;
         for(int i =1;i<=5;i++){
             UserDao userDao = new UserDao();
             User user = new User();
@@ -64,6 +68,7 @@ public class Main {
             userDao.insertUser(user);
 
             int numOfProfiles = getRandomIndex(1,4);
+            int numOfSearchHistory = getRandomIndex(0,30);
             System.out.println("num profile: "+numOfProfiles);
             for(int j=count;j<numOfProfiles+count;j++){
                 UserProfileDao userProfileDao = new UserProfileDao();
@@ -73,8 +78,23 @@ public class Main {
                 userProfile.setNickname(getRandomString(3,10));
                 userProfileDao.insertUserProfile(userProfile);
                 System.out.println("DONE: "+i);
+
+                makeSearchHistory(countSearchHistory,numOfSearchHistory,j);
             }
             count = count+numOfProfiles;
+            countSearchHistory = countSearchHistory+numOfSearchHistory;
+        }
+    }
+
+    private static void makeSearchHistory(int start,int count,int userId) throws SQLException{
+        for(int i =start;i<start+count;i++){
+            SearchHistoryDao searchHistoryDao = new SearchHistoryDao();
+            SearchHistory searchHistory = new SearchHistory();
+
+            searchHistory.setId(i);
+            searchHistory.setSearchKey(getRandomString(3,20));
+            searchHistory.setSearchedDate((java.sql.Date) getRandomDate());
+            searchHistory.setUserProfileId(userId);
         }
     }
 
@@ -123,6 +143,20 @@ public class Main {
             sb.append(randomChar);
         }
         return sb.toString();
+    }
+
+    private static Date getRandomDate(){
+        GregorianCalendar gc = new GregorianCalendar();
+
+        int year = getRandomIndex(2019, 2020);
+
+        gc.set(gc.YEAR, year);
+
+        int dayOfYear = getRandomIndex(1, gc.getActualMaximum(gc.DAY_OF_YEAR));
+
+        gc.set(gc.DAY_OF_YEAR, dayOfYear);
+
+        System.out.println(gc.get(gc.YEAR) + "-" + (gc.get(gc.MONTH) + 1) + "-" + gc.get(gc.DAY_OF_MONTH));
     }
 
     // get random userStatus
