@@ -13,26 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ContentDao {
-    private Connection conn;
-
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "cindia3704";
-    private static final String URL = "jdbc:mysql://localhost:3306/WatchIt?characterEncoding=latin1&useConfigs=maxPerformance";
-
-    public ContentDao(){
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-        }catch (ClassNotFoundException e){
-            e.printStackTrace();
-            System.out.println("Class not found!!");
-        }catch (SQLException e){
-            e.printStackTrace();
-            System.out.println("Connection failed!!");
-        }
-    }
-
-    public void insertContent(Content content) throws SQLException {
+    public static void insertContent(Content content,Connection conn) throws SQLException {
         String sqlStmt = "insert into Content values(?,?,?,?,?,?,?,?,?,?);";
         PreparedStatement pStmt = null;
         try{

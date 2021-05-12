@@ -1,12 +1,14 @@
 package com.watchIt;
 
 import com.watchIt.Entity.Content;
+import com.watchIt.Entity.MyContent;
 import com.watchIt.Entity.Order;
 import com.watchIt.Entity.SearchHistory;
 import com.watchIt.Entity.Ticket;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
 import com.watchIt.dao.ContentDao;
+import com.watchIt.dao.MyContentDao;
 import com.watchIt.dao.OrderDao;
 import com.watchIt.dao.SearchHistoryDao;
 import com.watchIt.dao.TicketDao;
@@ -14,10 +16,13 @@ import com.watchIt.dao.UserDao;
 import com.watchIt.dao.UserProfileDao;
 import com.watchIt.enums.ContentGenre;
 import com.watchIt.enums.ContentType;
+import com.watchIt.enums.RateStatus;
 import com.watchIt.enums.TicketType;
 import com.watchIt.enums.UserStatus;
 
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Month;
@@ -28,42 +33,55 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 	// write your code here
-//        createTickets();
-//        makeRandomContents();
-        createUsers();
+
+        Connection conn = null;
+
+        final String USERNAME = "root";
+        final String PASSWORD = "cindia3704";
+        final String URL = "jdbc:mysql://localhost:3306/WatchIt?characterEncoding=latin1&useConfigs=maxPerformance";
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        }catch (ClassNotFoundException e){
+            e.printStackTrace();
+            System.out.println("Class not found!!");
+        }catch (SQLException e){
+            e.printStackTrace();
+            System.out.println("Connection failed!!");
+        }
+
+        createTickets(conn);
+        makeRandomContents(conn);
+        createUsers(conn);
 
     }
 
     //create 3 tickets
-    private static void createTickets()throws SQLException{
-        TicketDao ticketDao = new TicketDao();
-
+    private static void createTickets(Connection db)throws SQLException{
         Ticket ticket1 = new Ticket();
         ticket1.setId(1);
         ticket1.setTicketType(TicketType.BASIC);
         ticket1.setPrice(9500);
-        ticketDao.insertTicket(ticket1);
+        TicketDao.insertTicket(ticket1,db);
 
         Ticket ticket2 = new Ticket();
         ticket2.setId(2);
         ticket2.setTicketType(TicketType.STANDARD);
         ticket2.setPrice(15000);
-        ticketDao.insertTicket(ticket2);
+        TicketDao.insertTicket(ticket2,db);
 
         Ticket ticket3 = new Ticket();
         ticket3.setId(3);
         ticket3.setTicketType(TicketType.PREMIUM);
         ticket3.setPrice(20000);
-        ticketDao.insertTicket(ticket3);
+        TicketDao.insertTicket(ticket3,db);
     }
 
     // create random users
-    private static void createUsers() throws SQLException {
+    private static void createUsers(Connection conn) throws SQLException {
         int count = 1;
         int countSearchHistory = 1;
-        UserDao userDao = new UserDao();
-        UserProfileDao userProfileDao = new UserProfileDao();
-        OrderDao orderDao = new OrderDao();
+        int countMyContents =1;
 
         for(int i =1;i<=5;i++){
             User user = new User();
@@ -72,25 +90,29 @@ public class Main {
             user.setPassword(getRandomString(3,10));
             user.setUsername(getRandomString(3,10));
             user.setUserStatus(getUserStatus(getRandomIndex(0,2)));
-            userDao.insertUser(user);
+            UserDao.insertUser(user,conn);
 
-            orderDao.insertOrder(makeRandomOrder(i));
+            OrderDao.insertOrder(makeRandomOrder(i),conn);
 
             int numOfProfiles = getRandomIndex(1,4);
             int numOfSearchHistory = getRandomIndex(0,30);
+            int numOfMyContents = getRandomIndex(0,20);
+
             System.out.println("num profile: "+numOfProfiles);
             for(int j=count;j<numOfProfiles+count;j++){
                 UserProfile userProfile = new UserProfile();
                 userProfile.setUserId(i);
                 userProfile.setId(j);
                 userProfile.setNickname(getRandomString(3,10));
-                userProfileDao.insertUserProfile(userProfile);
+                UserProfileDao.insertUserProfile(userProfile,conn);
                 System.out.println("DONE: "+i);
 
-                makeSearchHistory(countSearchHistory,numOfSearchHistory,j);
+                makeSearchHistory(countSearchHistory,numOfSearchHistory,j,conn);
+                makeRandomMyContent(countMyContents,numOfMyContents,j,conn);
             }
             count = count+numOfProfiles;
             countSearchHistory = countSearchHistory+numOfSearchHistory;
+            countMyContents = countMyContents+numOfMyContents;
         }
     }
     private static Order makeRandomOrder(int userId){
@@ -103,8 +125,18 @@ public class Main {
         return order;
     }
 
-    private static void makeSearchHistory(int start,int count,int userId) throws SQLException{
-        SearchHistoryDao searchHistoryDao = new SearchHistoryDao();
+    private static void makeRandomMyContent(int start,int count,int userId,Connection conn)throws SQLException{
+        for(int i= start;i<start+count;i++){
+            MyContent  myContent = new MyContent();
+            myContent.setId(i);
+            myContent.setContentId(getRandomIndex(1,5));
+            myContent.setUserProfileId(userId);
+            myContent.setRateStatus(getRateStatus(getRandomIndex(0,2)));
+            MyContentDao.insertMyContent(myContent,conn);
+        }
+    }
+
+    private static void makeSearchHistory(int start,int count,int userId,Connection conn) throws SQLException{
         for(int i =start;i<start+count;i++){
             SearchHistory searchHistory = new SearchHistory();
 
@@ -112,12 +144,11 @@ public class Main {
             searchHistory.setSearchKey(getRandomString(3,20));
             searchHistory.setSearchedDate(getRandomDate());
             searchHistory.setUserProfileId(userId);
-            searchHistoryDao.insertSearchHistory(searchHistory);
+            SearchHistoryDao.insertSearchHistory(searchHistory,conn);
         }
     }
 
-    private static void makeRandomContents() throws SQLException {
-        ContentDao contentDao = new ContentDao();
+    private static void makeRandomContents(Connection conn) throws SQLException {
         for(int i =1;i<=5;i++){
             Content content = new Content();
             content.setId(i);
@@ -130,7 +161,7 @@ public class Main {
             content.setVideo("https://watchIt.com/"+getRandomString(5,20)+".mp4");
             content.setTotalRateScore(getRandomDouble(0.0,5.0));
             content.setAgeLimit(getRandomIndex(0,20));
-            contentDao.insertContent(content);
+            ContentDao.insertContent(content,conn);
         }
     }
 
@@ -261,5 +292,14 @@ public class Main {
             return ContentGenre.ETC;
         }
     }
+
+    public static RateStatus getRateStatus(int index) {
+        if(index==1){
+            return RateStatus.DONE;
+        }else {
+            return RateStatus.NOT_DONE;
+        }
+    }
+
 }
 

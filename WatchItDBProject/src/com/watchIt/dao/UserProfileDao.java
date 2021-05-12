@@ -9,26 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UserProfileDao {
-    private Connection conn;
-
-    private static final String USERNAME = "root";
-    private static final String PASSWORD = "cindia3704";
-    private static final String URL = "jdbc:mysql://localhost:3306/WatchIt?characterEncoding=latin1&useConfigs=maxPerformance";
-
-    public UserProfileDao(){
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-        }catch (ClassNotFoundException e){
-            e.printStackTrace();
-            System.out.println("Class not found!!");
-        }catch (SQLException e){
-            e.printStackTrace();
-            System.out.println("Connection failed!!");
-        }
-    }
-
-    public void insertUserProfile(UserProfile userProfile) throws SQLException {
+    public static void insertUserProfile(UserProfile userProfile,Connection conn) throws SQLException {
         String sqlStmt = "insert into user_profile values(?,?,?);";
         PreparedStatement pStmt = null;
         try{
