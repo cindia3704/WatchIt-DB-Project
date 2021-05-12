@@ -1,15 +1,19 @@
 package com.watchIt;
 
 import com.watchIt.Entity.Content;
+import com.watchIt.Entity.ContentComment;
 import com.watchIt.Entity.MyContent;
-import com.watchIt.Entity.Order;
+import com.watchIt.Entity.Orders;
+import com.watchIt.Entity.Rating;
 import com.watchIt.Entity.SearchHistory;
 import com.watchIt.Entity.Ticket;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
+import com.watchIt.dao.ContentCommentDao;
 import com.watchIt.dao.ContentDao;
 import com.watchIt.dao.MyContentDao;
-import com.watchIt.dao.OrderDao;
+import com.watchIt.dao.OrdersDao;
+import com.watchIt.dao.RatingDao;
 import com.watchIt.dao.SearchHistoryDao;
 import com.watchIt.dao.TicketDao;
 import com.watchIt.dao.UserDao;
@@ -25,7 +29,6 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.GregorianCalendar;
 import java.util.Random;
 
@@ -82,8 +85,9 @@ public class Main {
         int count = 1;
         int countSearchHistory = 1;
         int countMyContents =1;
+        int countComments = 1;
 
-        for(int i =1;i<=5;i++){
+        for(int i =1;i<=10000;i++){
             User user = new User();
             user.setId(i);
             user.setUserAge(getRandomIndex(10,60));
@@ -91,15 +95,17 @@ public class Main {
             user.setUsername(getRandomString(3,10));
             user.setUserStatus(getUserStatus(getRandomIndex(0,2)));
             UserDao.insertUser(user,conn);
+            makeRandomOrder(i,conn);
 
-            OrderDao.insertOrder(makeRandomOrder(i),conn);
 
             int numOfProfiles = getRandomIndex(1,4);
-            int numOfSearchHistory = getRandomIndex(0,30);
-            int numOfMyContents = getRandomIndex(0,20);
-
             System.out.println("num profile: "+numOfProfiles);
+
             for(int j=count;j<numOfProfiles+count;j++){
+                int numOfSearchHistory = getRandomIndex(0,30);
+                int numOfMyContents = getRandomIndex(0,20);
+                int numOfComments = getRandomIndex(0,10);
+
                 UserProfile userProfile = new UserProfile();
                 userProfile.setUserId(i);
                 userProfile.setId(j);
@@ -109,27 +115,54 @@ public class Main {
 
                 makeSearchHistory(countSearchHistory,numOfSearchHistory,j,conn);
                 makeRandomMyContent(countMyContents,numOfMyContents,j,conn);
+                makeRandomComments(countComments,numOfComments,j,conn);
+
+                countSearchHistory = countSearchHistory+numOfSearchHistory;
+                countMyContents = countMyContents+numOfMyContents;
+                countComments = countComments + numOfComments;
             }
             count = count+numOfProfiles;
-            countSearchHistory = countSearchHistory+numOfSearchHistory;
-            countMyContents = countMyContents+numOfMyContents;
+
         }
     }
-    private static Order makeRandomOrder(int userId){
-        Order order = new Order();
+    private static void makeRandomOrder(int userId,Connection conn) throws SQLException {
+        Orders order = new Orders();
         order.setId(userId);
-        Date orderDate  = getRandomDate();
-        order.setStartDate(orderDate);
-        order.setStartDate(getEndDateForSelectedDate(orderDate));
+        Date selected = getRandomDate();
+        order.setStartDate(selected);
+        order.setEndDate(getEndDateForSelectedDate(selected));
         order.setUserId(userId);
-        return order;
+        order.setTicketId(getRandomIndex(1,3));
+        OrdersDao.insertOrders(order,conn);
+    }
+
+    private static void makeRandomComments(int start,int count, int userId, Connection conn) throws SQLException{
+        for(int i = start;i<start+count;i++){
+            System.out.println(" COMMENT: "+i);
+            int contentID = getRandomIndex(1,100000);
+            ContentComment contentComment = new ContentComment();
+            contentComment.setId(i);
+            contentComment.setComment(getRandomString(10,50));
+            contentComment.setUserProfileId(userId);
+            contentComment.setContentId(contentID);
+            ContentCommentDao.insertComments(contentComment,conn);
+
+            Rating rating = new Rating();
+            rating.setId(i);
+            rating.setScore(getRandomDouble(0.0,5.0));
+            rating.setContentId(contentID);
+            rating.setUserProfileId(userId);
+            RatingDao.insertRating(rating,conn);
+
+        }
     }
 
     private static void makeRandomMyContent(int start,int count,int userId,Connection conn)throws SQLException{
         for(int i= start;i<start+count;i++){
             MyContent  myContent = new MyContent();
+
             myContent.setId(i);
-            myContent.setContentId(getRandomIndex(1,5));
+            myContent.setContentId(getRandomIndex(1,100000));
             myContent.setUserProfileId(userId);
             myContent.setRateStatus(getRateStatus(getRandomIndex(0,2)));
             MyContentDao.insertMyContent(myContent,conn);
@@ -137,7 +170,9 @@ public class Main {
     }
 
     private static void makeSearchHistory(int start,int count,int userId,Connection conn) throws SQLException{
+        System.out.println("SEARCH HISTORY From : "+start+"  to "+count);
         for(int i =start;i<start+count;i++){
+            System.out.println("SEARCH HISTORY START: "+i);
             SearchHistory searchHistory = new SearchHistory();
 
             searchHistory.setId(i);
@@ -149,7 +184,7 @@ public class Main {
     }
 
     private static void makeRandomContents(Connection conn) throws SQLException {
-        for(int i =1;i<=5;i++){
+        for(int i =1;i<=100000;i++){
             Content content = new Content();
             content.setId(i);
             content.setContentType(getContentType(getRandomIndex(0,4)));
@@ -170,7 +205,7 @@ public class Main {
         int min = minNum;
         int max = count;
         int random = (int) ((Math.random() * (max - min)) + min);
-        System.out.println(random);
+//        System.out.println(random);
         return random;
     }
 
@@ -222,14 +257,15 @@ public class Main {
                 break;
         }
 
-        System.out.println(year + "-" + month + "-" + day);
+//        System.out.println(year + "-" + month + "-" + day);
         return Date.valueOf(LocalDate.of(year,month,day));
     }
 
     private static Date getEndDateForSelectedDate(Date start){
         LocalDate datee = start.toLocalDate();
-        Month month  = datee.getMonth().plus(1);
-        return Date.valueOf(LocalDate.of(datee.getYear(),month,datee.getDayOfMonth()));
+        datee = datee.plusMonths(1);
+        System.out.println("END: "+datee.toString());
+        return Date.valueOf(datee);
     }
 
     // get random userStatus

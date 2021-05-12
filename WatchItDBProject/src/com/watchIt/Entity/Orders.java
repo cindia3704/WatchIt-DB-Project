@@ -1,19 +1,19 @@
 package com.watchIt.Entity;
 
-import java.util.Date;
+import java.sql.Date;
 
 /*
  * @author : Jisoo Kim
- * @date: 2021/05/12 8:01 오전
+ * @date: 2021/05/12 7:49 오전
 */
-public class Order {
+public class Orders {
     private int id;
     private Date startDate;
     private Date endDate;
-    private int ticketId;
     private int userId;
+    private int ticketId;
 
-    public Order(){};
+    public Orders(){};
 
     public int getId(){
         return id;
@@ -23,12 +23,13 @@ public class Order {
         this.id = id;
     }
 
+
     public Date getStartDate(){
         return startDate;
     }
 
     public void setStartDate(Date startDate){
-        this.startDate=startDate;
+        this.startDate = startDate;
     }
 
     public Date getEndDate(){
@@ -36,15 +37,7 @@ public class Order {
     }
 
     public void setEndDate(Date endDate){
-        this.endDate=endDate;
-    }
-
-    public int getTicketId(){
-        return ticketId;
-    }
-
-    public void setTicketId(int ticketId){
-        this.ticketId=ticketId;
+        this.endDate = endDate;
     }
 
     public int getUserId(){
@@ -52,7 +45,14 @@ public class Order {
     }
 
     public void setUserId(int userId){
-        this.userId=userId;
+        this.userId = userId;
     }
 
+    public int getTicketId(){
+        return ticketId;
+    }
+
+    public void setTicketId(int ticketId){
+        this.ticketId = ticketId;
+    }
 }
