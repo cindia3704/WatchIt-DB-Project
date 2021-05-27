@@ -43,6 +43,9 @@ public class ContentDao {
             pStmt.close();
         }
     }
+
+
+
     public static Content getOneContent(Connection conn, Integer contentId)throws SQLException {
         String sqlStmt = "select * from Content where id =?";
         PreparedStatement pStmt = null;

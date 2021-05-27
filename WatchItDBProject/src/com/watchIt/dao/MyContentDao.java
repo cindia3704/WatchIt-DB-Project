@@ -35,10 +35,35 @@ public class MyContentDao {
             pStmt.close();
         }
     }
+    public static void deleteContentFromMyList(Connection conn, Integer contentId) throws SQLException {
+        conn.setAutoCommit(false); // default true
+        String sqlStmt = "delete from my_content where content_id =?";
+        PreparedStatement pStmt = null;
+        try{
+            pStmt = conn.prepareStatement(sqlStmt);
+            pStmt.setInt(1,contentId);
+            pStmt.executeUpdate();
 
+        }catch (SQLException e){
+            e.printStackTrace();
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
+        }finally {
+            pStmt.close();
+            conn.commit();
+            conn.setAutoCommit(true);
+        }
+    }
 
     public static List<MyContent> getMyContentList(Scanner sc, Connection conn, LoggedInUser loggedInUser)throws SQLException {
-        String sqlStmt = "select * from my_content where user = ?;";
+        conn.setAutoCommit(false); // default true
+        String sqlStmt = "select * from my_content where user_profile_id = ?;";
         PreparedStatement pStmt = null;
         List<MyContent> myContentList = new ArrayList<MyContent>();
         try{
@@ -60,9 +85,19 @@ public class MyContentDao {
                 myContentList.add(myContent);
             }
         }catch (SQLException e){
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
             e.printStackTrace();
         }finally {
             pStmt.close();
+            conn.commit();
+            conn.setAutoCommit(true);
         }
         return myContentList;
     }

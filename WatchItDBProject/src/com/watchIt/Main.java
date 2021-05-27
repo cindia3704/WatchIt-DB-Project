@@ -128,67 +128,7 @@ public class Main {
             case "2":
                 break;
             case "3":
-                List<MyContent> myContentList =MyContentDao.getMyContentList(sc,db,loggedInUser);
-                List<Content> contentList = ContentDao.getMyContentList(sc,db,myContentList);
-                for(int i=0;i<contentList.size();i++){
-                    Content selected = contentList.get(i);
-                    System.out.println("[ "+(i+1)+"] Title: "+selected.getTitle());
-                    System.out.println("   Year: "+selected.getYear());
-                    System.out.println("   Type: "+selected.getContentType());
-                    System.out.println("   Genre: "+selected.getContentGenre());
-                    System.out.println("   Description: "+selected.getDescription()+"\n");
-                }
-                System.out.println("|Insert content number for more info /\"menu\" to go back|");
-                System.out.print("Input: ");
-                String nextOp = sc.nextLine();
-                if(nextOp.equals("menu")){
-                    mainPage(sc, db, loggedInUser);
-                }else{
-                    Integer selected = null;
-                    try{
-                        selected =Integer.parseInt(nextOp) -1;
-                    }
-                    catch(NumberFormatException ex){
-                        System.out.println("Its not a valid Integer");
-                    }
-                    Content detail =contentList.get(selected);
-                    String myRatingStatus = myContentList.get(selected).getRateStatus().toString();
-                    System.out.println("|--------------------------------------------------------|");
-                    System.out.println("|                    CONTENT DETAIL PAGE                 |");
-                    System.out.println("|--------------------------------------------------------|");
-                    System.out.println("Title: "+detail.getTitle());
-                    System.out.println("Year: "+detail.getYear());
-                    System.out.println("Type: "+detail.getContentType());
-                    System.out.println("Genre: "+detail.getContentGenre());
-                    System.out.println("Description: "+detail.getDescription()+"");
-                    System.out.println("Total Rating Score : "+detail.getTotalRateScore()+"");
-                    System.out.println("Age Limit : "+detail.getAgeLimit()+"");
-                    System.out.println("My rating status : "+myRatingStatus+"\n");
-
-                    System.out.println("Please choose one of the options below: ");
-                    System.out.println("1 ) Go back to list of my contents ");
-                    System.out.println("2 ) Go back to menu ");
-                    System.out.println("3 ) Delete this content from MyContent");
-                    if(myRatingStatus.equals("DONE")){
-                        System.out.println("4) Redo rating!");
-                    }else{
-                        System.out.println("4) Rate this content");
-                    }
-                    System.out.print("Input: ");
-                    String nextOpInDetail = sc.nextLine();
-                    switch (nextOpInDetail){
-                        case "1":
-                            break;
-                            case "2":
-                                break;
-                        case "3":
-                            break;
-                        case "4":
-                            break;
-                    }
-
-                }
-
+                myContentLists(sc,db,loggedInUser);
                 break;
             case "4":
                 break;
@@ -203,6 +143,71 @@ public class Main {
         }
     }
 
+    private static void myContentLists(Scanner sc,Connection db,LoggedInUser loggedInUser) throws SQLException {
+        List<MyContent> myContentList =MyContentDao.getMyContentList(sc,db,loggedInUser);
+        List<Content> contentList = ContentDao.getMyContentList(sc,db,myContentList);
+        for(int i=0;i<contentList.size();i++){
+            Content selected = contentList.get(i);
+            System.out.println("[ "+(i+1)+"] Title: "+selected.getTitle());
+            System.out.println("   Year: "+selected.getYear());
+            System.out.println("   Type: "+selected.getContentType());
+            System.out.println("   Genre: "+selected.getContentGenre());
+            System.out.println("   Description: "+selected.getDescription()+"\n");
+        }
+        System.out.println("|Insert content number for more info /\"menu\" to go back|");
+        System.out.print("Input: ");
+        String nextOp = sc.nextLine();
+        if(nextOp.equals("menu")){
+            mainPage(sc, db, loggedInUser);
+        }else{
+            Integer selected = null;
+            try{
+                selected =Integer.parseInt(nextOp) -1;
+            }
+            catch(NumberFormatException ex){
+                System.out.println("Its not a valid Integer");
+            }
+            Content detail =contentList.get(selected);
+            String myRatingStatus = myContentList.get(selected).getRateStatus().toString();
+            System.out.println("|--------------------------------------------------------|");
+            System.out.println("|                    CONTENT DETAIL PAGE                 |");
+            System.out.println("|--------------------------------------------------------|");
+            System.out.println("Title: "+detail.getTitle());
+            System.out.println("Year: "+detail.getYear());
+            System.out.println("Type: "+detail.getContentType());
+            System.out.println("Genre: "+detail.getContentGenre());
+            System.out.println("Description: "+detail.getDescription()+"");
+            System.out.println("Total Rating Score : "+detail.getTotalRateScore()+"");
+            System.out.println("Age Limit : "+detail.getAgeLimit()+"");
+            System.out.println("My rating status : "+myRatingStatus+"\n");
+
+            System.out.println("Please choose one of the options below: ");
+            System.out.println("1 ) Go back to list of my contents ");
+            System.out.println("2 ) Go back to menu ");
+            System.out.println("3 ) Delete this content from MyContent");
+            if(myRatingStatus.equals("DONE")){
+                System.out.println("4) Redo rating!");
+            }else{
+                System.out.println("4) Rate this content");
+            }
+            System.out.print("Input: ");
+            String nextOpInDetail = sc.nextLine();
+            switch (nextOpInDetail){
+                case "1":
+                    myContentLists(sc,db,loggedInUser);
+                    break;
+                case "2":
+                    mainPage(sc,db,loggedInUser);
+                    break;
+                case "3":
+                    MyContentDao.deleteContentFromMyList(db,detail.getId());
+                    break;
+                case "4":
+                    break;
+            }
+
+        }
+    }
 
 
         //create 3 tickets
