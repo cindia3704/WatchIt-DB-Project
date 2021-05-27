@@ -1,5 +1,6 @@
 package com.watchIt.dao;
 
+import com.watchIt.Entity.LoggedInUser;
 import com.watchIt.Entity.User;
 import com.watchIt.enums.UserStatus;
 
@@ -34,11 +35,12 @@ public class UserDao {
         }
     }
 
-    public static String findUser(String username, String password,Connection conn) throws SQLException{
+    public static LoggedInUser findUser(String username, String password, Connection conn) throws SQLException{
         String sqlStmt = "select * from user where username = ? and password = ?;";
         PreparedStatement pStmt = null;
         conn.setAutoCommit(false); // default true
-        String next = "ERR";
+//        String next = "ERR";
+        LoggedInUser loggedInUser =null;
         try{
             pStmt = conn.prepareStatement(sqlStmt);
             pStmt.setString(1,username);
@@ -60,9 +62,8 @@ public class UserDao {
                     User found = new User(id, name, pw, age, userStatus);
                     System.out.println("Logged in as "+found.getUsername());
                     if(userStatus.equals(UserStatus.ACTIVE)){
-                        next = UserProfileDao.getUserProfile(found,conn);
+                        loggedInUser = UserProfileDao.getUserProfile(found,conn);
                     }else{
-                        next = "PAY";
                         System.out.println("Logged in as "+found.getUsername()+"\nYou are INACTIVE! To turn active you must buy a ticket...");
                     }
                 }
@@ -77,7 +78,7 @@ public class UserDao {
             conn.commit();
             conn.setAutoCommit(true);
         }
-        return next;
+        return loggedInUser;
     }
 
 

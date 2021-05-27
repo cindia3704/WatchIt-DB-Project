@@ -2,6 +2,7 @@ package com.watchIt;
 
 import com.watchIt.Entity.Content;
 import com.watchIt.Entity.ContentComment;
+import com.watchIt.Entity.LoggedInUser;
 import com.watchIt.Entity.MyContent;
 import com.watchIt.Entity.Orders;
 import com.watchIt.Entity.Rating;
@@ -70,27 +71,24 @@ public class Main {
         Scanner sc= new Scanner(System.in);
         System.out.print("option number: ");
         String option = sc.nextLine();
+        LoggedInUser loggedInUser =null;
         switch (option){
             case "1":
                 System.out.print("Username: ");
                 String username = sc.nextLine();
                 System.out.print("Password: ");
                 String password = sc.nextLine();
-                String nextPage = UserDao.findUser(username,password,db);
-                switch (nextPage){
-                    case "ERR":
-                        System.out.println("Wrong username / password!");
-                        welcomMsg(db);
-                        break;
-                    case "CHOOSEPROFILE":
-                        break;
-                    case "PAY":
-                        break;
-                    default:
-                        break;
+                loggedInUser = UserDao.findUser(username,password,db);
+                if(loggedInUser.equals(null)){
+                    System.out.println("Wrong username / password!");
+                    welcomMsg(db);
+                }
+                else{
+                    System.out.println("Logged in user : "+loggedInUser.getUser().getUsername());
                 }
                 break;
             case "2":
+                System.out.println("Register is not implemented yet...");
                 break;
             case "3":
                 System.out.println("See you again~ Bye!");

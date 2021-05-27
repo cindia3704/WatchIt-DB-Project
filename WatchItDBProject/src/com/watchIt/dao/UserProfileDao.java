@@ -1,5 +1,6 @@
 package com.watchIt.dao;
 
+import com.watchIt.Entity.LoggedInUser;
 import com.watchIt.Entity.User;
 import com.watchIt.Entity.UserProfile;
 
@@ -8,6 +9,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class UserProfileDao {
@@ -27,25 +30,26 @@ public class UserProfileDao {
         }
     }
 
-    public static String getUserProfile(User user, Connection conn) throws SQLException {
+    public static LoggedInUser getUserProfile(User user, Connection conn) throws SQLException {
         Scanner sc= new Scanner(System.in);
         String sqlStmt = "select * from user_profile where user_id = ?;";
         PreparedStatement pStmt = null;
-        String next = "ERR";
+        LoggedInUser loggedInUser =null;
         try {
             pStmt = conn.prepareStatement(sqlStmt);
             pStmt.setInt(1, user.getId());
             ResultSet rs = pStmt.executeQuery();
             Integer index = 1;
-            System.out.println("Please choose 1 of the userProfiles\n");
+            System.out.println("\nPlease choose 1 of the userProfiles:");
+            List<UserProfile> userProfileList = new ArrayList<UserProfile>();
             while(rs.next()) {
                 Integer id = rs.getInt(1);
                 String nickname = rs.getString(2);
                 Integer userId = rs.getInt(3);
                 UserProfile userProfile = new UserProfile(id, nickname, userId);
+                userProfileList.add(userProfile);
                 System.out.println(index.toString()+") "+userProfile.getNickname());
                 index++;
-
             }
             System.out.print("User profile number: ");
             Integer profileNum = sc.nextInt();
@@ -54,7 +58,8 @@ public class UserProfileDao {
                 System.out.print("User profile number: ");
                 profileNum = sc.nextInt();
             }
-            next = profileNum.toString();
+            loggedInUser = new LoggedInUser(user, userProfileList.get(profileNum - 1));
+
 
         } catch(SQLException e) {
             e.printStackTrace();
@@ -62,7 +67,7 @@ public class UserProfileDao {
             pStmt.close();
             sc.close();
         }
-        return next;
+        return loggedInUser;
     }
 
 }
