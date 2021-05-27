@@ -30,8 +30,7 @@ public class UserProfileDao {
         }
     }
 
-    public static LoggedInUser getUserProfile(User user, Connection conn) throws SQLException {
-        Scanner sc= new Scanner(System.in);
+    public static LoggedInUser getUserProfile(Scanner sc,User user, Connection conn) throws SQLException {
         String sqlStmt = "select * from user_profile where user_id = ?;";
         PreparedStatement pStmt = null;
         LoggedInUser loggedInUser =null;
@@ -51,21 +50,34 @@ public class UserProfileDao {
                 System.out.println(index.toString()+") "+userProfile.getNickname());
                 index++;
             }
+
             System.out.print("User profile number: ");
-            Integer profileNum = sc.nextInt();
+            String profileString =null;
+            profileString=sc.nextLine();
+            Integer profileNum = 0;
+            try{
+                profileNum =Integer.parseInt(profileString);
+            }
+            catch(NumberFormatException ex){
+                System.out.println("Its not a valid Integer");
+            }
             while(profileNum < 0 && profileNum >=index){
                 System.out.println("Wrong input.. Try agian");
                 System.out.print("User profile number: ");
-                profileNum = sc.nextInt();
+                profileString = sc.nextLine();
+                try{
+                    profileNum =Integer.parseInt(profileString);
+                }
+                catch(NumberFormatException ex){
+                    System.out.println("Its not a valid Integer");
+                }
             }
             loggedInUser = new LoggedInUser(user, userProfileList.get(profileNum - 1));
-
 
         } catch(SQLException e) {
             e.printStackTrace();
         }finally {
             pStmt.close();
-            sc.close();
         }
         return loggedInUser;
     }

@@ -13,6 +13,12 @@ public class Ticket {
 
     public Ticket(){};
 
+    public Ticket(Integer id, Integer price, TicketType type) {
+        this.id = id;
+        this.ticketType = type;
+        this.price = price;
+    }
+
     public int getId(){
         return id;
     }

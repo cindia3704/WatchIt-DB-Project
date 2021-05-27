@@ -71,30 +71,38 @@ public class Main {
         Scanner sc= new Scanner(System.in);
         System.out.print("option number: ");
         String option = sc.nextLine();
-        LoggedInUser loggedInUser =null;
         switch (option){
             case "1":
                 System.out.print("Username: ");
                 String username = sc.nextLine();
                 System.out.print("Password: ");
                 String password = sc.nextLine();
-                loggedInUser = UserDao.findUser(username,password,db);
-                if(loggedInUser.equals(null)){
-                    System.out.println("Wrong username / password!");
+                Object object = UserDao.findUser(sc,username,password,db);
+                if(object instanceof LoggedInUser){
+                    if(object.equals(null)){
+                        System.out.println("Wrong username / password!");
+                        welcomMsg(db);
+                    }
+                    else{
+                        System.out.println("Logged in user : "+ ((LoggedInUser) object).getUser().getUsername());
+                    }
+                }else{
+                    sc.close();
                     welcomMsg(db);
                 }
-                else{
-                    System.out.println("Logged in user : "+loggedInUser.getUser().getUsername());
-                }
+
                 break;
             case "2":
                 System.out.println("Register is not implemented yet...");
+                sc.close();
                 break;
             case "3":
                 System.out.println("See you again~ Bye!");
+                sc.close();
                 break;
             default:
                 System.out.println("Wrong Command. Please Select again...");
+                sc.close();
                 welcomMsg(db);
         }
 
