@@ -11,6 +11,12 @@ public class UserProfile {
 
     public UserProfile(){};
 
+    public UserProfile(Integer id, String nickname, Integer userId) {
+        this.id = id;
+        this.nickname = nickname;
+        this.userId = userId;
+    }
+
     public int getId(){
         return id;
     }

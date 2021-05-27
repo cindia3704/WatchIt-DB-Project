@@ -60,7 +60,7 @@ public class UserDao {
                     User found = new User(id, name, pw, age, userStatus);
                     System.out.println("Logged in as "+found.getUsername());
                     if(userStatus.equals(UserStatus.ACTIVE)){
-                        next = "CHOOSEPROFILE";
+                        next = UserProfileDao.getUserProfile(found,conn);
                     }else{
                         next = "PAY";
                         System.out.println("Logged in as "+found.getUsername()+"\nYou are INACTIVE! To turn active you must buy a ticket...");
