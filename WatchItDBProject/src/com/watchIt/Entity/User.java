@@ -14,6 +14,14 @@ public class User {
 
     public User(){};
 
+    public User(Integer id, String name, String pw, Integer age, UserStatus userStatus) {
+        this.id = id;
+        this.userAge = age;
+        this.username = name;
+        this.password = pw;
+        this.userStatus = userStatus;
+    }
+
     public int getId(){
         return id;
     }
