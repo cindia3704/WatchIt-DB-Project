@@ -31,6 +31,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -84,7 +85,8 @@ public class Main {
                         welcomMsg(db);
                     }
                     else{
-                        System.out.println("Logged in user : "+ ((LoggedInUser) object).getUser().getUsername());
+                        mainPage(sc,db,((LoggedInUser) object));
+//                        System.out.println("Logged in user : "+ ((LoggedInUser) object).getUser().getUsername());
                     }
                 }else{
                     sc.close();
@@ -108,8 +110,97 @@ public class Main {
 
     }
 
-    private static void chooseProfile(Connection db) throws SQLException {
+    private static void mainPage(Scanner sc,Connection db,LoggedInUser loggedInUser) throws SQLException {
+        System.out.println("|--------------------------------------------------------|");
+        System.out.println("|                         MAIN PAGE                      |");
+        System.out.println("|           Please Choose one of the options below:      |");
+        System.out.println("|1) See list of contents by TYPE                         |");
+        System.out.println("|2) See list of contents by GENRE                        |");
+        System.out.println("|3) See list of my contents                              |");
+        System.out.println("|4) Search contents by title                             |");
+        System.out.println("|5) Exit                                                 |");
+        System.out.println("|--------------------------------------------------------|");
+        System.out.print("option number: ");
+        String option = sc.nextLine();
+        switch (option) {
+            case "1":
+                break;
+            case "2":
+                break;
+            case "3":
+                List<MyContent> myContentList =MyContentDao.getMyContentList(sc,db,loggedInUser);
+                List<Content> contentList = ContentDao.getMyContentList(sc,db,myContentList);
+                for(int i=0;i<contentList.size();i++){
+                    Content selected = contentList.get(i);
+                    System.out.println("[ "+(i+1)+"] Title: "+selected.getTitle());
+                    System.out.println("   Year: "+selected.getYear());
+                    System.out.println("   Type: "+selected.getContentType());
+                    System.out.println("   Genre: "+selected.getContentGenre());
+                    System.out.println("   Description: "+selected.getDescription()+"\n");
+                }
+                System.out.println("|Insert content number for more info /\"menu\" to go back|");
+                System.out.print("Input: ");
+                String nextOp = sc.nextLine();
+                if(nextOp.equals("menu")){
+                    mainPage(sc, db, loggedInUser);
+                }else{
+                    Integer selected = null;
+                    try{
+                        selected =Integer.parseInt(nextOp) -1;
+                    }
+                    catch(NumberFormatException ex){
+                        System.out.println("Its not a valid Integer");
+                    }
+                    Content detail =contentList.get(selected);
+                    String myRatingStatus = myContentList.get(selected).getRateStatus().toString();
+                    System.out.println("|--------------------------------------------------------|");
+                    System.out.println("|                    CONTENT DETAIL PAGE                 |");
+                    System.out.println("|--------------------------------------------------------|");
+                    System.out.println("Title: "+detail.getTitle());
+                    System.out.println("Year: "+detail.getYear());
+                    System.out.println("Type: "+detail.getContentType());
+                    System.out.println("Genre: "+detail.getContentGenre());
+                    System.out.println("Description: "+detail.getDescription()+"");
+                    System.out.println("Total Rating Score : "+detail.getTotalRateScore()+"");
+                    System.out.println("Age Limit : "+detail.getAgeLimit()+"");
+                    System.out.println("My rating status : "+myRatingStatus+"\n");
 
+                    System.out.println("Please choose one of the options below: ");
+                    System.out.println("1 ) Go back to list of my contents ");
+                    System.out.println("2 ) Go back to menu ");
+                    System.out.println("3 ) Delete this content from MyContent");
+                    if(myRatingStatus.equals("DONE")){
+                        System.out.println("4) Redo rating!");
+                    }else{
+                        System.out.println("4) Rate this content");
+                    }
+                    System.out.print("Input: ");
+                    String nextOpInDetail = sc.nextLine();
+                    switch (nextOpInDetail){
+                        case "1":
+                            break;
+                            case "2":
+                                break;
+                        case "3":
+                            break;
+                        case "4":
+                            break;
+                    }
+
+                }
+
+                break;
+            case "4":
+                break;
+            case "5":
+                System.out.println("See you again~ Bye!");
+                sc.close();
+                break;
+            default:
+                System.out.println("Wrong input.. Try again");
+                mainPage(sc, db, loggedInUser);
+                break;
+        }
     }
 
 

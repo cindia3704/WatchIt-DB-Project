@@ -21,6 +21,19 @@ public class Content {
 
     public Content(){};
 
+    public Content(Integer id, ContentType type, ContentGenre genre, String title, Integer year, String description, String poster, String video, double rateScore, Integer ageLimit) {
+        this.id=id;
+        this.title = title;
+        this.contentType = type;
+        this.contentGenre = genre;
+        this.description = description;
+        this.poster = poster;
+        this.year = year;
+        this.totalRateScore = rateScore;
+        this.video = video;
+        this.ageLimit = ageLimit;
+    }
+
     public int getId(){
         return id;
     }

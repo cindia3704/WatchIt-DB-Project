@@ -13,6 +13,13 @@ public class MyContent {
 
     public MyContent(){};
 
+    public MyContent(Integer id, RateStatus rateStatus, Integer userProfileId, Integer contentID) {
+        this.id= id;
+        this.rateStatus = rateStatus;
+        this.contentId = contentID;
+        this.userProfileId = userProfileId;
+    }
+
     public int getId(){
         return id;
     }
