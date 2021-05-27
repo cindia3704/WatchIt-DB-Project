@@ -28,6 +28,7 @@ import com.watchIt.enums.UserStatus;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.GregorianCalendar;
@@ -58,18 +59,18 @@ public class Main {
 //        createTickets(conn);
 //        makeRandomContents(conn);
 //        createUsers(conn);
-        welcomMsg(conn);
-
+        Scanner sc= new Scanner(System.in);
+        welcomMsg(sc,conn);
+        sc.close();
 
     }
 
-    private static void welcomMsg(Connection db) throws SQLException {
+    private static void welcomMsg(Scanner sc,Connection db) throws SQLException {
         System.out.println("\nWELCOME TO WatchIt\nPlease select one of the options below");
         System.out.println("1) Login");
         System.out.println("2) Register");
         System.out.println("3) Exit");
 
-        Scanner sc= new Scanner(System.in);
         System.out.print("option number: ");
         String option = sc.nextLine();
         switch (option){
@@ -82,30 +83,27 @@ public class Main {
                 if(object instanceof LoggedInUser){
                     if(object.equals(null)){
                         System.out.println("Wrong username / password!");
-                        welcomMsg(db);
+                        welcomMsg(sc,db);
                     }
                     else{
                         mainPage(sc,db,((LoggedInUser) object));
+                        break;
 //                        System.out.println("Logged in user : "+ ((LoggedInUser) object).getUser().getUsername());
                     }
                 }else{
-                    sc.close();
-                    welcomMsg(db);
+                    welcomMsg(sc,db);
                 }
 
                 break;
             case "2":
                 System.out.println("Register is not implemented yet...");
-                sc.close();
                 break;
             case "3":
                 System.out.println("See you again~ Bye!");
-                sc.close();
                 break;
             default:
                 System.out.println("Wrong Command. Please Select again...");
-                sc.close();
-                welcomMsg(db);
+                welcomMsg(sc,db);
         }
 
     }
@@ -118,7 +116,8 @@ public class Main {
         System.out.println("|2) See list of contents by GENRE                        |");
         System.out.println("|3) See list of my contents                              |");
         System.out.println("|4) Search contents by title                             |");
-        System.out.println("|5) Exit                                                 |");
+        System.out.println("|5) Delete this user_profiel                             |");
+        System.out.println("|6) Exit                                                 |");
         System.out.println("|--------------------------------------------------------|");
         System.out.print("option number: ");
         String option = sc.nextLine();
@@ -129,12 +128,20 @@ public class Main {
                 break;
             case "3":
                 myContentLists(sc,db,loggedInUser);
+                mainPage(sc,db,loggedInUser);
                 break;
             case "4":
+                System.out.println("SEARCH KEY: ");
+                String key = sc.nextLine();
+                SearchHistoryDao.updateSearchHistory(db,loggedInUser,key);
+                mainPage(sc,db,loggedInUser);
                 break;
             case "5":
+                UserProfileDao.deleteUserProfile(loggedInUser.getUserProfile(),db);
+                mainPage(sc,db,loggedInUser);
+                break;
+            case "6":
                 System.out.println("See you again~ Bye!");
-                sc.close();
                 break;
             default:
                 System.out.println("Wrong input.. Try again");
@@ -144,6 +151,7 @@ public class Main {
     }
 
     private static void myContentLists(Scanner sc,Connection db,LoggedInUser loggedInUser) throws SQLException {
+        db.setAutoCommit(false);
         List<MyContent> myContentList =MyContentDao.getMyContentList(sc,db,loggedInUser);
         List<Content> contentList = ContentDao.getMyContentList(sc,db,myContentList);
         for(int i=0;i<contentList.size();i++){
@@ -158,7 +166,7 @@ public class Main {
         System.out.print("Input: ");
         String nextOp = sc.nextLine();
         if(nextOp.equals("menu")){
-            mainPage(sc, db, loggedInUser);
+            return;
         }else{
             Integer selected = null;
             try{
@@ -180,29 +188,55 @@ public class Main {
             System.out.println("Total Rating Score : "+detail.getTotalRateScore()+"");
             System.out.println("Age Limit : "+detail.getAgeLimit()+"");
             System.out.println("My rating status : "+myRatingStatus+"\n");
+            System.out.println("-------------------------COMMENTS------------------------");
+            List<ContentComment> contentComments = ContentCommentDao.getCommentForCertainContent(db,detail.getId());
+            for(int i=0;i<contentComments.size();i++){
+                String nickName =ContentCommentDao.getNickNameOfComments(db,contentComments.get(i));
+                System.out.println("[ "+nickName+" ] : "+contentComments.get(i).getComment()+"\n");
+            }
 
             System.out.println("Please choose one of the options below: ");
             System.out.println("1 ) Go back to list of my contents ");
             System.out.println("2 ) Go back to menu ");
             System.out.println("3 ) Delete this content from MyContent");
-            if(myRatingStatus.equals("DONE")){
-                System.out.println("4) Redo rating!");
-            }else{
+//            if(myRatingStatus.equals("DONE")){
+//                System.out.println("4) Redo rating!");
+//            }else{
+            if(myRatingStatus.equals("NOT_DONE")){
                 System.out.println("4) Rate this content");
             }
             System.out.print("Input: ");
             String nextOpInDetail = sc.nextLine();
             switch (nextOpInDetail){
                 case "1":
+                    db.commit();
                     myContentLists(sc,db,loggedInUser);
                     break;
                 case "2":
+                    db.commit();
                     mainPage(sc,db,loggedInUser);
                     break;
                 case "3":
-                    MyContentDao.deleteContentFromMyList(db,detail.getId());
+                    MyContentDao.deleteContentFromMyList(db,detail.getId(),loggedInUser);
+                    db.commit();
                     break;
                 case "4":
+                    System.out.print("Score: ");
+                    String score = sc.nextLine();
+                    Double dscore = null;
+                    try{
+                        dscore=Double.parseDouble(score);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                    if(myRatingStatus.equals("NOT_DONE")) {
+                        MyContentDao.rateMyContent(db, detail.getId(), dscore, loggedInUser, "NOT_DONE", "DONE");
+                    }
+                    db.commit();
+                    db.setAutoCommit(true);
+//                    }else {
+//                        MyContentDao.rateMyContent(db, detail.getId(), dscore,loggedInUser,"DONE","NOT_DONE");
+//                    }
                     break;
             }
 

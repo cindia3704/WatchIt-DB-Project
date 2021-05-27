@@ -11,6 +11,13 @@ public class ContentComment {
 
     public ContentComment(){};
 
+    public ContentComment(Integer id, String comment, Integer userProfileID, Integer contentID) {
+        this.id = id;
+        this.contentId = contentID;
+        this.userProfileId = userProfileID;
+        this.comment = comment;
+    }
+
     public int getId(){
         return id;
     }

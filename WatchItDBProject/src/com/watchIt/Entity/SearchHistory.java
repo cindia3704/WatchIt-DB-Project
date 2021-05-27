@@ -15,6 +15,13 @@ public class SearchHistory {
 
     public SearchHistory(){};
 
+    public SearchHistory(Integer id, String key, java.sql.Date date, Integer userID) {
+        this.id = id;
+        this.searchKey = key;
+        this.searchedDate = date;
+        this.userProfileId = userID;
+    }
+
     public int getId(){
         return id;
     }

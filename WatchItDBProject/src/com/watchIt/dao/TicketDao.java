@@ -94,7 +94,7 @@ public class TicketDao {
 
             if(select!=4){
                 Statement stmt3 = conn.createStatement();
-                ResultSet rs3 = stmt3.executeQuery("SELECT COUNT(*) as total FROM orders");
+                ResultSet rs3 = stmt3.executeQuery("SELECT MAX(id) as total FROM orders");
                 Integer total = 0;
                 int month = LocalDate.now().getMonthValue();
                 int year = LocalDate.now().getYear();
@@ -115,9 +115,16 @@ public class TicketDao {
                 OrdersDao.insertOrders(orders,conn);
 
             }
-
         }catch (SQLException e){
             e.printStackTrace();
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
         }finally {
             pStmt.close();
         }
