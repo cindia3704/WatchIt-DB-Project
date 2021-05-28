@@ -101,11 +101,209 @@ public class ContentDao {
                 }
             }catch (SQLException e){
                 e.printStackTrace();
+                try {
+                    conn.rollback();
+                    System.err.println(e.getMessage());
+                    System.err.println("Transaction rollback");
+                } catch (SQLException e1) {
+                    System.err.println(e1.getMessage());
+                    System.err.println("There was an error making a rollback");
+                }
             }finally {
                 pStmt.close();
             }
         }
         return contentList;
+    }
+
+    public static void getContentTypeList(Scanner sc, Connection conn) throws SQLException{
+        String sqlStmt = "select distinct type from Content ";
+        PreparedStatement pStmt = null;
+        List<String> typeList = new ArrayList<String>();
+        List<Content> contentList = new ArrayList<Content>();
+        try{
+                pStmt = conn.prepareStatement(sqlStmt);
+                ResultSet rs =pStmt.executeQuery();
+
+                while (rs.next()){
+                    String type = rs.getString(1);
+                    typeList.add(type);
+                }
+                for(int i=0;i<typeList.size();i++){
+                    System.out.println("[ "+(i+1)+" ]: "+typeList.get(i));
+                }
+                System.out.print("Select Type: ");
+                String op = sc.nextLine();
+                Integer index = null;
+                try{
+                    index =Integer.parseInt(op);
+                }
+                catch(NumberFormatException ex){
+                    System.out.println("Its not a valid Integer");
+                }
+                if(index<0 || index >= typeList.size()){
+                    System.out.println("Invalid number.. Try again ");
+                    System.out.print("Select Type: ");
+                    op = sc.nextLine();
+                    try{
+                        index =Integer.parseInt(op);
+                    }
+                    catch(NumberFormatException ex){
+                        System.out.println("Its not a valid Integer");
+                    }
+                }
+                String sqlStmt2 = "select * from content where type=? ";
+                PreparedStatement pStmt2 = null;
+                try {
+                    pStmt2 = conn.prepareStatement(sqlStmt2);
+                    pStmt2.setString(1,typeList.get(index-1));
+                    ResultSet rs2 =pStmt2.executeQuery();
+                    while(rs2.next()){
+                        Integer id = rs2.getInt(1);
+                        ContentType type = getContentType(rs2.getString(2));
+                        ContentGenre genre = getContentGenre(rs2.getString(3));
+                        String title = rs2.getString(4);
+                        Integer year = rs2.getInt(5);
+                        String description = rs2.getString(6);
+                        String poster = rs2.getString(7);
+                        String video = rs2.getString(8);
+                        double rateScore = rs2.getDouble(9);
+                        Integer ageLimit = rs2.getInt(10);
+                        Content newContent = new Content(id,type,genre,title,year,description,poster,video,rateScore,ageLimit);
+                        contentList.add(newContent);
+                    }
+                    for(int i = 0; i<contentList.size();i++){
+                        System.out.println("[ "+(i+1)+" ]   Title: "+contentList.get(i).getTitle());
+                        System.out.println("Type : "+contentList.get(i).getContentType());
+                        System.out.println("Genre : "+contentList.get(i).getContentGenre());
+                        System.out.println("Poster : "+contentList.get(i).getPoster());
+                        System.out.println("Year : "+contentList.get(i).getYear());
+                        System.out.println("Rate Score : "+contentList.get(i).getTotalRateScore()+"\n");
+                    }
+
+                }catch (SQLException e){
+                e.printStackTrace();
+                    try {
+                        conn.rollback();
+                        System.err.println(e.getMessage());
+                        System.err.println("Transaction rollback");
+                    } catch (SQLException e1) {
+                        System.err.println(e1.getMessage());
+                        System.err.println("There was an error making a rollback");
+                    }
+            }finally {
+                pStmt2.close();
+            }
+
+            }catch (SQLException e){
+                e.printStackTrace();
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
+            }finally {
+                pStmt.close();
+            }
+
+    }
+
+    public static void getContentGenreList(Scanner sc, Connection conn) throws SQLException{
+        String sqlStmt = "select distinct genre from Content ";
+        PreparedStatement pStmt = null;
+        List<String> genreList = new ArrayList<String>();
+        List<Content> contentList = new ArrayList<Content>();
+        try{
+            pStmt = conn.prepareStatement(sqlStmt);
+            ResultSet rs =pStmt.executeQuery();
+
+            while (rs.next()){
+                String genre = rs.getString(1);
+                genreList.add(genre);
+            }
+            for(int i=0;i<genreList.size();i++){
+                System.out.println("[ "+(i+1)+" ]: "+genreList.get(i));
+            }
+            System.out.print("Select Type: ");
+            String op = sc.nextLine();
+            Integer index = null;
+            try{
+                index =Integer.parseInt(op);
+            }
+            catch(NumberFormatException ex){
+                System.out.println("Its not a valid Integer");
+            }
+            if(index<0 || index >= genreList.size()){
+                System.out.println("Invalid number.. Try again ");
+                System.out.print("Select Type: ");
+                op = sc.nextLine();
+                try{
+                    index =Integer.parseInt(op);
+                }
+                catch(NumberFormatException ex){
+                    System.out.println("Its not a valid Integer");
+                }
+            }
+            String sqlStmt2 = "select * from content where genre=? ";
+            PreparedStatement pStmt2 = null;
+            try {
+                pStmt2 = conn.prepareStatement(sqlStmt2);
+                pStmt2.setString(1,genreList.get(index-1));
+                ResultSet rs2 =pStmt2.executeQuery();
+                while(rs2.next()){
+                    Integer id = rs2.getInt(1);
+                    ContentType type = getContentType(rs2.getString(2));
+                    ContentGenre genre = getContentGenre(rs2.getString(3));
+                    String title = rs2.getString(4);
+                    Integer year = rs2.getInt(5);
+                    String description = rs2.getString(6);
+                    String poster = rs2.getString(7);
+                    String video = rs2.getString(8);
+                    double rateScore = rs2.getDouble(9);
+                    Integer ageLimit = rs2.getInt(10);
+                    Content newContent = new Content(id,type,genre,title,year,description,poster,video,rateScore,ageLimit);
+                    contentList.add(newContent);
+                }
+                for(int i = 0; i<contentList.size();i++){
+                    System.out.println("[ "+(i+1)+" ]   Title: "+contentList.get(i).getTitle());
+                    System.out.println("Type : "+contentList.get(i).getContentType());
+                    System.out.println("Genre : "+contentList.get(i).getContentGenre());
+                    System.out.println("Poster : "+contentList.get(i).getPoster());
+                    System.out.println("Year : "+contentList.get(i).getYear());
+                    System.out.println("Rate Score : "+contentList.get(i).getTotalRateScore()+"\n");
+                }
+
+            }catch (SQLException e){
+                e.printStackTrace();
+                try {
+                    conn.rollback();
+                    System.err.println(e.getMessage());
+                    System.err.println("Transaction rollback");
+                } catch (SQLException e1) {
+                    System.err.println(e1.getMessage());
+                    System.err.println("There was an error making a rollback");
+                }
+            }finally {
+                pStmt2.close();
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
+        }finally {
+            pStmt.close();
+        }
+
     }
 
     public static ContentGenre getContentGenre(String genre){

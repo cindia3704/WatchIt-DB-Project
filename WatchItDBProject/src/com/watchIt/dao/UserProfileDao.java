@@ -135,6 +135,23 @@ public class UserProfileDao {
                 System.err.println("There was an error making a rollback");
             }
         }
+        String sqlStmts = "delete from my_content where user_profile_id = ?";
+        PreparedStatement pStmts = null;
+        try {
+            pStmts = conn.prepareStatement(sqlStmts);
+            pStmts.setInt(1, userProfile.getId());
+            pStmts.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                conn.rollback();
+                System.err.println(e.getMessage());
+                System.err.println("Transaction rollback");
+            } catch (SQLException e1) {
+                System.err.println(e1.getMessage());
+                System.err.println("There was an error making a rollback");
+            }
+        }
         String sqlStmt4 = "delete from user_profile where id = ?";
         PreparedStatement pStmt4 = null;
         try {

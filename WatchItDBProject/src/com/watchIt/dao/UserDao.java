@@ -79,8 +79,8 @@ public class UserDao {
                 }
                 try {
                     User found = new User(id, name, pw, age, userStatus);
-                    System.out.println("Logged in as "+found.getUsername());
                     if(userStatus.equals(UserStatus.ACTIVE)){
+                        System.out.println("Logged in as "+found.getUsername());
                         loggedInUser = UserProfileDao.getUserProfile(sc,found,conn);
                         next="A";
                     }else{
