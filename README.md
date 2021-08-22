@@ -23,14 +23,14 @@
 - Rate content (컨텐츠 별점 주기)
 - Add content to my favorites (내 찜 목록에 컨텐츠 추가) 
 
-## 💻Installation and Set up💻
+## 💻Installation and Setup💻
 To begin using this template, choose one of the following options to get started:
 * [Fork, Clone, or Download on GitHub](https://github.com/cindia3704/WatchIt-DB-Project)  
 * Open the project through Intellij IDEA  
 * Run "Main.java" to start using the program
 
 To set up the database with pre-defined SQL statements, please refer to the file below:
-* [See SQL](https://github.com/KoreaGuide/cindia3704/WatchIt-DB-Project/SQL)  
+* [See SQL](https://github.com/cindia3704/WatchIt-DB-Project/blob/main/SQL/watchIt.sql)  
 
 ## 📝Requirements📝
 - Java Version 11 
